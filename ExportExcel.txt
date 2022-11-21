@@ -1,0 +1,80 @@
+										<< EXPORT DATA TO EXCEL >> 
+
++>>		Class ExcelExporter
+- private XSSFWorkbook workbook; 
+- private XSSFSheet sheet;
+
+
++>>		createCell(Row row, int columnCount, Object obj, CellStyle style)
+- sheet.autoSizeColumn(columnCount);
+- Cell cell = row.createCell(columnCount);
+- cell.setCellStyle(style); 
+	//	Có thể set vị trí của các cell
+	//	style.setWrapText(true);
+	
++>> 	writeHeaderLine()								(Tạo dòng tiêu đề - HeaderLine)
+- sheet = workbook.createSheet("sheetname");			(Tên của sheet)
+- Row row = sheet.createRow(0);							(Hàng đầu tiên)
+- XSSFCellStyle style = workbook.createCellStyle();
+- XSSFFont font = workbook.createFont();
+	+ font.setBold(true);								(Bôi đậm chữ)
+	+ font.setFontHeight(20);							(Chiều cao chữ)
+	+ style.setFont(font);
+	+ style.setAlignment(HorizontalAlignment.CENTER);
+    + style.setVerticalAlignment(VerticalAlignment.CENTER);
+	+ createCell(row, 0, "Tên hàng đầu tiên", style);
+- sheet.addMergedRegion(new CellRangeAddress(firstRow, lastRow, firstCol, lastCol);
+
+
+- row = sheet.createRow(1);								(Hàng thứ 2) (Tên của các trường)
+- font.setBold(true);
+- font.setFontHeight(16);
+- style.setFont(font);
+- createCell(row, 0, "Tên cột 1", style);
+- createCell(row, 1, "Tên cột 2", style);
+- createCell(row, 2, "Tên cột 3", style);
+- createCell(row, 3, "Tên cột 4", style);
+- ...
+
+
++>>		writeDataLine()									(Tạo dữ liệu cho các dòng)
+
+- int rowCount = 2; (Hàng thứ 3 < Vì dòng 1 : tên hàng đàu tiên / dòng 2 : tên của các trường > )
+- CellStyle style = workbook.createCellStyle();
+- XSSFFont font = workbook.createFont();
+- font.setFontHeight(14);
+- For(  :  ) {
+	+	Xử lý dữ liệu 
+}
+
+
++>> 	export(HttpServletResponse response) throws IOException {
+	writeHeaderLine();
+	writeDataLine();
+	ServletOutputStream outputStream = response.getOutputStream();
+	workbook.write(outputStream);
+	workbook.close();
+	outputStream.close();
+	
+
+
++>> CONTROLLER
+    public void exportExcel(HttpServletResponse response) throws IOException {
+        response.setContentType("application/octet-stream");
+        String headerKey = "Content-Disposition";
+        String headerValue = "attachment; filename=<Tên file xlsx>";
+
+        response.setHeader(headerKey, headerValue);
+        List<Student> listStudent = studentRepository.findAll();
+        UserExcelExporter exp = new UserExcelExporter(listStudent);
+        exp.export(response);
+
+    } 
+
+
+
+
+
+
+
+
